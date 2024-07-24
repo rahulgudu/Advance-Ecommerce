@@ -15,7 +15,7 @@ export const newUser = TryCatch(
             });
         }
 
-        if (!name || !email || !photo || !gender || !_id || dob) {
+        if (!name || !email || !photo || !gender || !_id || !dob) {
             return next(new ErrorHandler("Please ill all details", 400));
         }
 
