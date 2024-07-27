@@ -15,3 +15,28 @@ export type ControllerType = (
     next: NextFunction
 ) =>
     Promise<void | Response<string, any>>
+
+export interface NewProductRequestBody {
+    name: string,
+    category: string,
+    price: number,
+    stock: number
+}
+
+export type SearchRequestQuery = {
+    search?: string,
+    name?: string,
+    price?: string,
+    category?: string,
+    sort?: string,
+    page?: string
+}
+
+export interface BaseQuery {
+    name?: {
+        $regex: string,
+        $options: string
+    };
+    price?: { $lte: number };
+    category?: string
+}
