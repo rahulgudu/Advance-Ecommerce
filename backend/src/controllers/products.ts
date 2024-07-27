@@ -4,6 +4,8 @@ import { BaseQuery, NewProductRequestBody, SearchRequestQuery } from "../types/t
 import { Product } from "../models/products.js";
 import ErrorHandler from "../utils/utility-class.js";
 import { rm } from "fs";
+import { myCache } from "../app.js";
+import { invalidateCache } from "../utils/features.js";
 
 export const newProduct = TryCatch(async (req: Request<{}, {}, NewProductRequestBody>, res, next) => {
     const { name, price, stock, category } = req.body;
@@ -25,6 +27,8 @@ export const newProduct = TryCatch(async (req: Request<{}, {}, NewProductRequest
         photo: photo.path
     });
 
+    await invalidateCache({ product: true });
+
     return res.status(201).json({
         sucess: true,
         message: "Product created successfully"
@@ -32,7 +36,19 @@ export const newProduct = TryCatch(async (req: Request<{}, {}, NewProductRequest
 });
 
 export const getLatestProduct = TryCatch(async (req, res, next) => {
-    const products = await Product.find({}).sort({ createdAt: -1 }).limit(5);
+
+    let products;
+
+    if (myCache.has("latest-product")) {
+        // if already exists in cache then return
+        products = JSON.parse(myCache.get("latest-product") as string)
+    } else {
+        products = await Product.find({}).sort({ createdAt: -1 }).limit(5);
+
+        // storing in cache
+        myCache.set("latest-product", JSON.stringify(products))
+    }
+
 
     return res.status(200).json({
         success: true,
@@ -41,7 +57,15 @@ export const getLatestProduct = TryCatch(async (req, res, next) => {
 });
 
 export const getAllCategories = TryCatch(async (req, res, next) => {
-    const categories = await Product.distinct("category");
+    let categories;
+
+    if (myCache.has("categories")) {
+        categories = JSON.parse(myCache.get("categories") as string)
+    }
+    else {
+        categories = await Product.distinct("category");
+        myCache.set("categories", JSON.stringify(categories));
+    }
 
     return res.status(200).json({
         success: true,
@@ -50,17 +74,36 @@ export const getAllCategories = TryCatch(async (req, res, next) => {
 });
 
 export const getAllProducts = TryCatch(async (req, res, next) => {
-    const categories = await Product.find({});
+    let products;
+
+    if (myCache.has("all-products")) {
+        products = JSON.parse(myCache.get("all-products") as string);
+    } else {
+        products = await Product.find({});
+        myCache.set("all-products", JSON.stringify(products))
+    }
+
+
 
     return res.status(200).json({
         sucess: true,
-        categories
+        products
     });
 });
 
 export const getProduct = TryCatch(async (req, res, next) => {
     const id = req.params.id;
-    const product = await Product.findById(id);
+
+    let product;
+
+    if (myCache.has(`single-product-${id}`)) {
+        product = JSON.parse(myCache.get(`single-product-${id}`) as string)
+    } else {
+        product = await Product.findById(id);
+        
+        myCache.set(`single-product-${id}`, JSON.stringify(product))
+    }
+
 
     if (!product) {
         return next(new ErrorHandler("Invalid product Id", 404));
@@ -93,6 +136,8 @@ export const updateProduct = TryCatch(async (req, res, next) => {
 
     await product.save();
 
+    await invalidateCache({ product: true });
+
     return res.status(200).json({
         success: true,
         message: "Product Updated Successfully"
@@ -100,7 +145,9 @@ export const updateProduct = TryCatch(async (req, res, next) => {
 });
 
 export const deleteProduct = TryCatch(async (req, res, next) => {
-    const product = await Product.findById(req.params.id);
+    const id  = req.params.id;
+    
+    const product = await Product.findById(id);
 
     if (!product) return next(new ErrorHandler("Invalid Product Id", 404));
 
@@ -109,11 +156,13 @@ export const deleteProduct = TryCatch(async (req, res, next) => {
 
     });
 
-    await Product.deleteOne();
+    await product.deleteOne();
+
+    await invalidateCache({ product: true });
 
     return res.status(200).json({
         success: true,
-        message: "Product deleted successfully"
+        message: `Product deleted successfully with ID: ${id}`
     });
 
 });
