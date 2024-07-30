@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { trim } from "validator";
 
 const productSchema = new mongoose.Schema({
     name: {
@@ -16,7 +15,7 @@ const productSchema = new mongoose.Schema({
     },
     stock: {
         type: Number,
-        required: [true, "Please enter Category"]
+        required: [true, "Please enter stock"]
     },
     category: {
         type: String,

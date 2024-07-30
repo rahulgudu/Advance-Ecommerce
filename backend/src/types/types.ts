@@ -17,10 +17,10 @@ export type ControllerType = (
     Promise<void | Response<string, any>>
 
 export interface NewProductRequestBody {
-    name: string,
-    category: string,
-    price: number,
-    stock: number
+    name: string;
+    category: string;
+    price: number;
+    stock: number;
 }
 
 export type SearchRequestQuery = {
@@ -42,7 +42,35 @@ export interface BaseQuery {
 }
 
 export type InvalidateCacheProps = {
-    product?:boolean;
-    order?:boolean;
-    admin?:boolean
+    product?: boolean;
+    order?: boolean;
+    admin?: boolean;
+    userId?: string;
+    orderId?: string;
+    productId?: string | string[];
+}
+
+export type OrderItem = {
+    name: string,
+    photo: string,
+    price: number,
+    quantity: number,
+    productId: string
+}
+export type ShippingInfo = {
+    address: string,
+    city: string,
+    state: string,
+    country: string,
+    pinCode: number
+}
+export interface NewOrderRequestBody {
+    shippingInfo: ShippingInfo;
+    user: string;
+    subtotal: number;
+    tax: number;
+    shippingCharges: number;
+    discount: number;
+    total: number;
+    orderItems: OrderItem[]
 }
