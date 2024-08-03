@@ -48,7 +48,7 @@ const schema = new mongoose.Schema({
         type: Date,
         required: [true, "Please enter your DOB"]
     }
-})
+}, {timestamps: true})
 
 schema.virtual("age").get(function () {
     const today = new Date();
