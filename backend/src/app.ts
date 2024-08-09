@@ -4,7 +4,7 @@ import NodeCache from "node-cache";
 import { config } from "dotenv";
 import morgan from "morgan";
 import Stripe from "stripe";
-
+import cors from "cors";
 // imports
 import userRoutes from "./routes/user.js";
 import productRoutes from "./routes/products.js";
@@ -31,6 +31,7 @@ const app = express();
 // middleware
 app.use(express.json());
 app.use(morgan("dev"));
+app.use(cors())
 
 app.get("/", (req, res) => {
   res.send("<h1>App is healthy</h1>");
