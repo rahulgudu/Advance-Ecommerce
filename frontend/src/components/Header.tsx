@@ -7,9 +7,12 @@ import {
   FaUser,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
-const user = { _id: "", role: "admin" };
+import { User } from "../types/types";
+interface PropsType {
+  user: User | null;
+}
 
-const Header = () => {
+const Header = ({ user }: PropsType) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleLogout = () => {
     setIsOpen(false);
@@ -26,7 +29,7 @@ const Header = () => {
         <FaShoppingBag />
       </Link>
 
-      {user._id ? (
+      {user?._id ? (
         <>
           <button onClick={() => setIsOpen(!isOpen)}>
             <FaUser />
