@@ -1,27 +1,40 @@
 import { useEffect, useState } from "react";
 import { VscError } from "react-icons/vsc";
-import CartItems from "../components/CartItems";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import CartItems from "../components/CartItems";
 
-const cartItems = [
-  {
-    productId: "Item 1",
-    photo:
-      "https://store.storeimages.cdn-apple.com/4668/as-images.apple.com/is/mba13-midnight-select-202402?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1708367688034",
-    name: "MackBook",
-    price: 30000,
-    quantity: 4,
-    stock: 10,
-  },
-];
-const subtotal = 4000;
-const tax = Math.round(subtotal * 0.18);
-const shippingCharges = 200;
-const discount = 400;
-const total = subtotal + tax + shippingCharges;
+import toast from "react-hot-toast";
+import {
+  addToCart,
+  calculatePrice,
+  removeCartItem,
+} from "../redux/reducers/cartReducer";
+import { CartReducerInitialState } from "../types/reducer_types";
+import { CartItem } from "../types/types";
+
 const Cart = () => {
+  const { cartItems, subtotal, tax, total, shippingCharges, discount } =
+    useSelector(
+      (state: { cartReducer: CartReducerInitialState }) => state.cartReducer
+    );
   const [couponCode, setCuponCode] = useState("");
   const [isValidCuponCode, setvalidCuponCode] = useState<boolean>(false);
+
+  const dispatch = useDispatch();
+  const incrementHandler = (cartItem: CartItem) => {
+    if (cartItem.quantity >= cartItem.stock)
+      return toast.error("Maximum quantity reached");
+    dispatch(addToCart({ ...cartItem, quantity: cartItem.quantity + 1 }));
+  };
+  const decrementHandler = (cartItem: CartItem) => {
+    if (cartItem.quantity <= 1) return;
+    dispatch(addToCart({ ...cartItem, quantity: cartItem.quantity - 1 }));
+  };
+
+  const removeHandler = (productId: string) => {
+    dispatch(removeCartItem(productId));
+  };
 
   useEffect(() => {
     const timeOutId = setTimeout(() => {
@@ -37,11 +50,23 @@ const Cart = () => {
       setvalidCuponCode(false);
     };
   }, [couponCode]);
+
+  useEffect(() => {
+    dispatch(calculatePrice());
+  }, [cartItems]);
   return (
     <div className="cart">
       <main>
         {cartItems.length > 0 ? (
-          cartItems.map((i, index) => <CartItems key={index} cartItem={i} />)
+          cartItems.map((i, index) => (
+            <CartItems
+              incrementHandler={incrementHandler}
+              decrementHandler={decrementHandler}
+              removeHandler={removeHandler}
+              key={index}
+              cartItem={i}
+            />
+          ))
         ) : (
           <h1>No Items added</h1>
         )}
