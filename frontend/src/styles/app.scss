@@ -128,6 +128,12 @@ $color3: rgb(0, 104, 136);
       font-size: 1.1rem;
     }
   }
+  .not-found {
+    @include flex(column);
+    > svg {
+      font-size: 5rem;
+    }
+  }
 }
 
 .admin-container {

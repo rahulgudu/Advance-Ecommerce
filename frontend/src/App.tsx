@@ -36,7 +36,7 @@ const ProductManagement = lazy(
 const TransactionManagement = lazy(
   () => import("./pages/admin/management/transactionmanagement")
 );
-
+const NotFound = lazy(() => import("./pages/NotFound"));
 const App = () => {
   const { user, loading } = useSelector(
     (state: { userReducer: UserReducerInitialState }) => state.userReducer
@@ -111,6 +111,8 @@ const App = () => {
               element={<TransactionManagement />}
             />
           </Route>
+
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
       <Toaster position="bottom-center" />
