@@ -4,14 +4,30 @@ import { Coupon } from "../models/coupons.js";
 import ErrorHandler from "../utils/utility-class.js";
 
 export const paymentIntent = TryCatch(async (req, res, next) => {
-  const { amount } = req.body;
+  const { amount, description } = req.body;
 
   if (!amount) return next(new ErrorHandler("Please enter amount", 400));
+
+  const customer = await stripe.customers.create({
+    name: description.name,
+    address: {
+      line1: description.address,
+      city: description.city,
+      state: description.state,
+      postal_code: description.pincode,
+      country: description.country
+    }
+  })
+
+  const paymentDescription = `Purchase by ${description.name}, Address: ${description.address}, ${description.city}, ${description.state}, ${description.country} - ${description.pincode}`;
+
 
   const paymentIntent = await stripe.paymentIntents.create({
     amount: Number(amount) * 100,
     currency: "INR",
-    payment_method_types: ["card"]
+    payment_method_types: ["card"],
+    description: paymentDescription,
+    customer: customer.id
   });
 
   return res.status(201).json({

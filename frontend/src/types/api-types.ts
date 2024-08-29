@@ -1,4 +1,4 @@
-import { Order, Product, ShippingInfo, User } from "./types";
+import { CartItem, Order, Product, ShippingInfo, User } from "./types";
 export type CustomError = {
   status: number;
   data: {
@@ -60,7 +60,7 @@ export type DeleteProductRequest = {
 
 export type NewOrderRequest = {
   shippingInfo: ShippingInfo;
-  orderItems: [];
+  orderItems: CartItem[];
   subtotal: number;
   tax: number;
   shippingCharges: number;

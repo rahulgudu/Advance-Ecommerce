@@ -37,6 +37,8 @@ const TransactionManagement = lazy(
   () => import("./pages/admin/management/transactionmanagement")
 );
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Checkout = lazy(() => import("./pages/CheckoutForm"));
+const OrderDetails = lazy(() => import("./pages/OrderDetails"));
 const App = () => {
   const { user, loading } = useSelector(
     (state: { userReducer: UserReducerInitialState }) => state.userReducer
@@ -78,6 +80,8 @@ const App = () => {
             element={<ProtectedRoute isAuthenticated={user ? true : false} />}>
             <Route path="/shipping" element={<Shipping />} />
             <Route path="/orders" element={<Order />} />
+            <Route path="/order/:id" element={<OrderDetails />} />
+            <Route path="/pay" element={<Checkout />} />
           </Route>
           {/* // Admin Routes */}
           <Route
